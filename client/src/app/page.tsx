@@ -9,6 +9,7 @@ import { MdCloudUpload } from "react-icons/md";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useRef } from "react";
+import Link from "next/link";
 
 export default function Home() {
   const textInputRef = useRef(null);
@@ -72,6 +73,7 @@ export default function Home() {
       console.log(data);
       if (res) {
         router.refresh();
+        setShowForm(false);
       }
     }
   };
@@ -167,7 +169,8 @@ export default function Home() {
         </div>
         {memory.map((el) => {
           return (
-            <div className="relative ">
+            <Link  key={el._id} href={`/Memory/${el._id}`} className="relative">
+             
               <img
                 src={el.image}
                 alt="photo"
@@ -190,7 +193,9 @@ export default function Home() {
               >
                 <RiEdit2Fill size={20} />
               </button>
-            </div>
+          
+            </Link>
+            
           );
         })}
 

@@ -13,8 +13,15 @@ const memorySchema = mongoose.Schema({
   image: String,
 });
 
+const subMemorySchema = mongoose.Schema({
+  memorytitle: String,
+  image: String,
+  parentId:String,
+});
+
 // Creating the Schema
 const memoryModel = mongoose.model("MemoryImages", memorySchema);
+const subMemoryModel = mongoose.model("yourMemories", subMemorySchema);
 
 // Post API for passing data into this Schema
 
@@ -26,6 +33,16 @@ app.post("/uploadMemory", async (req, res) => {
   });
   await memoryData.save();
   console.log("Memory added successfully!");
+});
+
+app.post("/uploadImagesToMemory", async (req, res) => {
+  console.log(req.body);
+  const memoryData = new subMemoryModel({
+    image: req.body.image,
+    parentId:req.body.parentId,
+  });
+  await memoryData.save();
+  console.log("Memory Images added successfully!");
 });
 
 app.delete("/deleteMemory/:id", async (req, res) => {
@@ -93,6 +110,10 @@ app.get("/getMemory", async (req, res) => {
   if (!res) {
     console.log("Failed");
   }
+});
+
+app.get("/", async (req, res) => {
+  console.log("Running")
 });
 
 mongoose
