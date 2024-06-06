@@ -16,7 +16,7 @@ const memorySchema = mongoose.Schema({
 const subMemorySchema = mongoose.Schema({
   memorytitle: String,
   image: String,
-  parentId:String,
+  parentId: String,
 });
 
 // Creating the Schema
@@ -39,7 +39,7 @@ app.post("/uploadImagesToMemory", async (req, res) => {
   console.log(req.body);
   const memoryData = new subMemoryModel({
     image: req.body.image,
-    parentId:req.body.parentId,
+    parentId: req.body.parentId,
   });
   await memoryData.save();
   console.log("Memory Images added successfully!");
@@ -49,6 +49,23 @@ app.delete("/deleteMemory/:id", async (req, res) => {
   try {
     const id = req.params.id;
     const deletedMemory = await memoryModel.findByIdAndDelete(id);
+
+    if (!deletedMemory) {
+      return res.status(404).json({ message: "Memory not found" });
+    }
+
+    console.log("Memory deleted successfully!");
+    res.status(200).json({ message: "Memory deleted successfully!" });
+  } catch (error) {
+    console.error("Error deleting memory:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+app.delete("/deleteMemoryImage/:id", async (req, res) => {
+  try {
+    const id = req.params.id;
+    const deletedMemory = await subMemoryModel.findByIdAndDelete(id);
 
     if (!deletedMemory) {
       return res.status(404).json({ message: "Memory not found" });
@@ -112,8 +129,26 @@ app.get("/getMemory", async (req, res) => {
   }
 });
 
+app.get("/getMemoryImage/:parentId", async (req, res) => {
+  try {
+    const parentId = req.params.parentId;
+    const memories = await subMemoryModel.find({ parentId: parentId });
+
+    if (!memories.length) {
+      return res.status(404).json({ message: "No memories found" });
+    }
+
+    res
+      .status(200)
+      .json({ message: "Memories fetched successfully", data: memories });
+  } catch (error) {
+    console.error("Error fetching memories:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 app.get("/", async (req, res) => {
-  console.log("Running")
+  console.log("Running");
 });
 
 mongoose

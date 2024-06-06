@@ -1,11 +1,13 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { FaArrowLeft } from "react-icons/fa";
+import { usePathname } from "next/navigation";
 const Header = () => {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
   const [imagePreview, setImagePreview] = useState(null);
-
+  const pathname = usePathname();
   const toggleForm = () => {
     setShowForm(!showForm);
   };
@@ -30,6 +32,10 @@ const Header = () => {
       reader.onload = () => resolve(reader.result);
       reader.onerror = (err) => reject(err);
     });
+  };
+
+  const handleBack = () => {
+    router.back();
   };
 
   const handleSubmit = async (e) => {
@@ -131,11 +137,23 @@ const Header = () => {
           </form>
         </div>
       )}
-      <div className="flex items-center gap-4 text-gray-500 pt-2">
-        <p className="text-[#31b666] font-semibold">Recent</p>
-        <p>1 Month ago</p>
-        <p>3 Month ago</p>
-      </div>
+      {pathname === "/" ? (
+        <div className="flex items-center gap-4 text-gray-500 pt-2">
+          <p className="text-[#31b666] font-semibold">Recent</p>
+          <p>1 Month ago</p>
+          <p>3 Month ago</p>
+        </div>
+      ) : (
+        <div className="flex pt-2">
+          <button
+            className="flex items-center px-4 py-2 bg-gradient-to-r from-orange-400 to-pink-500 text-white font-semibold rounded-full focus:outline-none hover:from-orange-500 hover:to-pink-600 transition-colors duration-200"
+            onClick={handleBack}
+          >
+            <FaArrowLeft className="mr-2" />
+            Back
+          </button>
+        </div>
+      )}
     </div>
   );
 };

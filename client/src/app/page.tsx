@@ -15,6 +15,7 @@ export default function Home() {
   const textInputRef = useRef(null);
   const router = useRouter();
   const [memory, setMemory] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
@@ -22,6 +23,7 @@ export default function Home() {
     const res = await fetch("http://localhost:8080/getMemory");
     const data = await res.json();
     setMemory(data.data);
+    setLoading(false);
   };
   const toggleForm = () => {
     setShowForm(!showForm);
@@ -156,7 +158,7 @@ export default function Home() {
         <Header />
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 pb-12">
-        <div className="imageContainer">
+        {/* <div className="imageContainer">
           <form>
             <label htmlFor="uploadImage">
               <div className="uploadBox">
@@ -166,11 +168,19 @@ export default function Home() {
             </label>
             <button>Upload</button>
           </form>
-        </div>
-        {memory.map((el) => {
-          return (
-            <Link  key={el._id} href={`/Memory/${el._id}`} className="relative">
-             
+        </div> */}
+
+        {loading ? (
+          <div className="loader-container w-100">
+            <img
+              src="https://t3.ftcdn.net/jpg/02/72/69/06/360_F_272690606_amEMGQRpv6kcgPMHnkVCdkUip2p2Ytky.jpg"
+              alt="Loading..."
+              className="animate-pulse"
+            />
+          </div>
+        ) : (
+          memory.map((el) => (
+            <Link key={el._id} href={`/Memory/${el._id}`} className="relative">
               <img
                 src={el.image}
                 alt="photo"
@@ -183,21 +193,19 @@ export default function Home() {
               </div>
               <button
                 onClick={() => deleteMemory(el._id)}
-                className="absolute bottom-2 right-2 text-white p-2 rounded-full focus:outline-none"
+                className="absolute bottom-2 right-2 text-white p-2 rounded-full focus:outline-none bg-red-500 hover:bg-red-700"
               >
                 <RiDeleteBin6Fill size={20} />
               </button>
               <button
                 onClick={() => openEditWindow(el._id)}
-                className="absolute bottom-2 left-2 text-white  p-2 rounded-full focus:outline-none"
+                className="absolute bottom-2 left-2 text-white p-2 rounded-full focus:outline-none bg-blue-500 hover:bg-blue-700"
               >
                 <RiEdit2Fill size={20} />
               </button>
-          
             </Link>
-            
-          );
-        })}
+          ))
+        )}
 
         {showForm && (
           <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
