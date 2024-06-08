@@ -31,7 +31,7 @@ export default function Home() {
     setShowForm(!showForm);
   };
 
-  const imagebase64 = async (file) => {
+  const imagebase64 = async (file: any) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -40,7 +40,7 @@ export default function Home() {
     });
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     const id = editId;
     const fileInput = e.target.fileInput.files[0];
@@ -79,7 +79,7 @@ export default function Home() {
     }
   };
 
-  const openEditWindow = async (id) => {
+  const openEditWindow = async (id: any) => {
     setShowForm(!showForm);
     try {
       const res = await fetch(`http://localhost:8080/getMemory/${id}`);
@@ -90,7 +90,7 @@ export default function Home() {
       const memory = await res.json();
       setEditId(id);
 
-      if (textInputRef.current) {
+      if (textInputRef && textInputRef.current) {
         textInputRef.current.value = memory.title;
       }
       setImagePreview(memory.image);
@@ -100,7 +100,7 @@ export default function Home() {
     }
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event: any) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();

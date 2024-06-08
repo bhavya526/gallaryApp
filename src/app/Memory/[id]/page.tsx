@@ -39,7 +39,7 @@ const Memory = () => {
     }
   };
 
-  const handleOpenModal = (image) => {
+  const handleOpenModal = (image: any) => {
     setModalImage(image);
     setIsModalOpen(true);
   };
@@ -49,7 +49,7 @@ const Memory = () => {
     setModalImage(null);
   };
 
-  const imagebase64 = async (file) => {
+  const imagebase64 = async (file: any) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -58,12 +58,12 @@ const Memory = () => {
     });
   };
 
-  const handleFileChange = (event) => {
+  const handleFileChange = (event: any) => {
     // Update the selected file state when the file input changes
     setSelectedFile(event.target.files[0]);
   };
 
-  const downloadImage = (imageUrl) => {
+  const downloadImage = (imageUrl: any) => {
     // Create a temporary anchor element
     const link = document.createElement("a");
     link.href = imageUrl;
@@ -77,7 +77,7 @@ const Memory = () => {
     document.body.removeChild(link);
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: any) => {
     e.preventDefault();
     console.log(selectedFile);
     const fileInput = selectedFile;
@@ -99,7 +99,7 @@ const Memory = () => {
     }
   };
 
-  const deleteMemory = async (id) => {
+  const deleteMemory = async (id: any) => {
     try {
       const res = await fetch(`http://localhost:8080/deleteMemoryImage/${id}`, {
         method: "DELETE",
