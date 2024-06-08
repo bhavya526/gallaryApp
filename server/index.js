@@ -13,6 +13,11 @@ const memorySchema = mongoose.Schema({
   image: String,
 });
 
+const loginSchema = mongoose.Schema({
+  username: String,
+  password: String,
+});
+
 const subMemorySchema = mongoose.Schema({
   memorytitle: String,
   image: String,
@@ -21,6 +26,7 @@ const subMemorySchema = mongoose.Schema({
 
 // Creating the Schema
 const memoryModel = mongoose.model("MemoryImages", memorySchema);
+const loginModel = mongoose.model("LoginPage", loginSchema);
 const subMemoryModel = mongoose.model("yourMemories", subMemorySchema);
 
 // Post API for passing data into this Schema
@@ -35,6 +41,14 @@ app.post("/uploadMemory", async (req, res) => {
   console.log("Memory added successfully!");
 });
 
+app.get("/loginMemory", async (req, res) => {
+  const data = await loginModel.find({});
+  res.json({ message: "User fetched successfully", data: data });
+  if (!res) {
+    console.log("Failed");
+  }
+});
+
 app.post("/uploadImagesToMemory", async (req, res) => {
   console.log(req.body);
   const memoryData = new subMemoryModel({
@@ -43,6 +57,20 @@ app.post("/uploadImagesToMemory", async (req, res) => {
   });
   await memoryData.save();
   console.log("Memory Images added successfully!");
+
+  try {
+    const id = req.params.id;
+    const memory = await memoryModel.findById(id);
+
+    if (!memory) {
+      return res.status(404).json({ message: "Memory not found" });
+    }
+
+    res.status(200).json(memory);
+  } catch (error) {
+    console.error("Error fetching memory:", error);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
 });
 
 app.delete("/deleteMemory/:id", async (req, res) => {
