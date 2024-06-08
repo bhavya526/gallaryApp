@@ -1,277 +1,83 @@
 "use client";
-import Image from "next/image";
-import Navbar from "@/components/Navbar";
-import Header from "@/components/Header";
-import { RiDeleteBin6Fill } from "react-icons/ri";
-import "./globals.css";
-import { RiEdit2Fill } from "react-icons/ri";
-import { MdCloudUpload } from "react-icons/md";
-import { useEffect, useState } from "react";
+import React from "react";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
-import Link from "next/link";
+import { useState } from "react";
 
-export default function Home() {
-  const textInputRef = useRef(null);
+const LoginForm = () => {
   const router = useRouter();
-  const [memory, setMemory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [showForm, setShowForm] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
-  const fetchMemories = async () => {
-    const res = await fetch("http://localhost:8080/getMemory");
-    const data = await res.json();
-    setMemory(data.data);
-    setLoading(false);
-  };
-  const toggleForm = () => {
-    setShowForm(!showForm);
-  };
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-  const imagebase64 = async (file: any) => {
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.readAsDataURL(file);
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = (err) => reject(err);
-    });
-  };
-
-  const handleSubmit = async (e: any) => {
+  const handleLogin = async (e: any) => {
     e.preventDefault();
-    const id = editId;
-    const fileInput = e.target.fileInput.files[0];
-    console.log(e.target.fileInput.files[0]);
-
-    if (fileInput) {
-      const image = await imagebase64(fileInput);
-      setShowForm(false);
-      console.log(e.target.textInput.value);
-      console.log(image);
-
-      const res = await fetch(`http://localhost:8080/editMemory/${id}`, {
-        method: "PUT",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ title: e.target.textInput.value, image: image }),
-      });
-      const data = await res.json();
-      console.log(data);
-      if (res) {
-        router.refresh();
-        setShowForm(false);
-      }
+    const res = await fetch("http://localhost:8080/loginMemory");
+    const data = await res.json();
+    if (data.data[0].password === password && data.data[0].username === email) {
+      router.push("/MainPage");
     } else {
-      const res = await fetch(`http://localhost:8080/editMemory/${id}`, {
-        method: "PUT",
-        headers: {
-          "content-type": "application/json",
-        },
-        body: JSON.stringify({ title: e.target.textInput.value }),
-      });
-      const data = await res.json();
-      console.log(data);
-      if (res) {
-        router.refresh();
-        setShowForm(false);
-      }
+      // Handle error (e.g., show error message)
+      alert("Invalid Username or Password");
+      console.error("Login failed", data.message);
     }
   };
-
-  const openEditWindow = async (id: any) => {
-    setShowForm(!showForm);
-    try {
-      const res = await fetch(`http://localhost:8080/getMemory/${id}`);
-      if (!res.ok) {
-        throw new Error(`Failed to fetch memory! Status: ${res.status}`);
-      }
-
-      const memory = await res.json();
-      setEditId(id);
-      textInputRef.current.value = memory.title;
-      setImagePreview(memory.image);
-      setShowForm(true);
-    } catch (error) {
-      console.error("Error fetching memory:", error);
-    }
-  };
-
-  const editMemory = async (id: any, updatedData: any) => {
-    try {
-      const res = await fetch(`http://localhost:8080/editMemory/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Failed to update memory! Status: ${res.status}`);
-      }
-
-      const result = await res.json();
-      console.log(result.message);
-    } catch (error) {
-      console.error("Error updating memory:", error);
-    }
-  };
-
-  const handleFileChange = (event: any) => {
-    const file = event.target.files[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result);
-      };
-      reader.readAsDataURL(file);
-    } else {
-      setImagePreview(null);
-    }
-  };
-
-  const deleteMemory = async (id: any) => {
-    try {
-      const res = await fetch(`http://localhost:8080/deleteMemory/${id}`, {
-        method: "DELETE",
-      });
-
-      if (!res.ok) {
-        throw new Error(`Failed to delete memory! Status: ${res.status}`);
-      }
-
-      const result = await res.json();
-      console.log(result.message);
-    } catch (error) {
-      console.error("Error deleting memory:", error);
-    }
-  };
-  useEffect(() => {
-    fetchMemories();
-  });
   return (
-    <main className="container">
-      <div className="sticky top-0 bg-white pb-4 z-10">
-        <Navbar />
-        <Header />
-      </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 pb-12">
-        {/* <div className="imageContainer">
-          <form>
-            <label htmlFor="uploadImage">
-              <div className="uploadBox">
-                <input type="file" id="uploadImage" />
-                <MdCloudUpload />
-              </div>
-            </label>
-            <button>Upload</button>
-          </form>
-        </div> */}
-
-        {loading ? (
-          <div className="loader-container w-100">
-            <img
-              src="https://t3.ftcdn.net/jpg/02/72/69/06/360_F_272690606_amEMGQRpv6kcgPMHnkVCdkUip2p2Ytky.jpg"
-              alt="Loading..."
-              className="animate-pulse"
-            />
-          </div>
-        ) : (
-          memory.map((el) => (
-            <Link key={el._id} href={`/Memory/${el._id}`} className="relative">
-              <img
-                src={el.image}
-                alt="photo"
-                className="w-full h-full object-cover rounded-lg"
+    <div className="min-h-screen flex items-center justify-center  py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8 bg-white p-8 rounded-lg shadow-lg">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Let’s get back to the memories
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Welcome back! Please login to your account.
+          </p>
+        </div>
+        <form className="mt-8 space-y-6" onSubmit={handleLogin}>
+          <input type="hidden" name="remember" value="true" />
+          <div className="rounded-md shadow-sm space-y-4">
+            <div>
+              <label htmlFor="email-address" className="sr-only">
+                Username
+              </label>
+              <input
+                id="email-address"
+                name="email"
+                type="text"
+                autoComplete="email"
+                required
+                onChange={(e) => setEmail(e.target.value)}
+                className="appearance-none relative block w-full px-3 py-2 border-b-2 border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm"
+                placeholder="Username"
               />
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <h2 className="text-white text-xl font-bold shadow-lg">
-                  {el.title}
-                </h2>
-              </div>
-              <button
-                onClick={() => deleteMemory(el._id)}
-                className="absolute bottom-2 right-2 text-white p-2 rounded-full focus:outline-none bg-red-500 hover:bg-red-700"
-              >
-                <RiDeleteBin6Fill size={20} />
-              </button>
-              <button
-                onClick={() => openEditWindow(el._id)}
-                className="absolute bottom-2 left-2 text-white p-2 rounded-full focus:outline-none bg-blue-500 hover:bg-blue-700"
-              >
-                <RiEdit2Fill size={20} />
-              </button>
-            </Link>
-          ))
-        )}
-
-        {showForm && (
-          <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-            <form
-              className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm"
-              onSubmit={handleSubmit}
-            >
-              <div className="mb-4">
-                <label
-                  htmlFor="textInput"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  Text Input
-                </label>
-                <input
-                  type="text"
-                  ref={textInputRef}
-                  id="textInput"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  placeholder="Enter text"
-                />
-              </div>
-              <div className="mb-4">
-                <label
-                  htmlFor="fileInput"
-                  className="block text-gray-700 text-sm font-bold mb-2"
-                >
-                  File Input
-                </label>
-                <input
-                  type="file"
-                  id="fileInput"
-                  name="fileInput"
-                  className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                  accept="image/*"
-                  onChange={handleFileChange}
-                />
-              </div>
-              {imagePreview && (
-                <div className="mb-4">
-                  <img
-                    src={imagePreview}
-                    alt="Preview"
-                    className="w-full h-auto rounded-lg shadow-md"
-                  />
-                </div>
-              )}
-              <div className="flex items-center justify-between">
-                <button
-                  type="submit"
-                  className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                >
-                  Submit
-                </button>
-                <button
-                  type="button"
-                  className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  onClick={toggleForm}
-                >
-                  Cancel
-                </button>
-              </div>
-            </form>
+            </div>
+            <div>
+              <label htmlFor="password" className="sr-only">
+                Password
+              </label>
+              <input
+                id="password"
+                name="password"
+                type="password"
+                autoComplete="current-password"
+                required
+                onChange={(e) => setPassword(e.target.value)}
+                className="appearance-none relative block w-full px-3 py-2 border-b-2 border-gray-300 placeholder-gray-500 text-gray-900 focus:outline-none focus:ring-pink-500 focus:border-pink-500 focus:z-10 sm:text-sm"
+                placeholder="Password"
+              />
+            </div>
           </div>
-        )}
+
+          <div className="pt-2">
+            <button
+              type="submit"
+              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-gradient-to-r from-orange-400 to-pink-500 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
+            >
+              Sign in
+            </button>
+          </div>
+        </form>
       </div>
-    </main>
+    </div>
   );
-}
+};
+
+export default LoginForm;

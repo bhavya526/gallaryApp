@@ -3,6 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { FaArrowLeft } from "react-icons/fa";
 import { usePathname } from "next/navigation";
+import { CircleLoader } from "react-spinners";
 const Header = () => {
   const router = useRouter();
   const [showForm, setShowForm] = useState(false);
@@ -57,8 +58,9 @@ const Header = () => {
       const data = await res.json();
       console.log(data);
       if (res) {
-        res.send({ message: "Memory added successfully!" });
         router.refresh();
+
+        res.send({ message: "Memory added successfully!" });
       }
     }
   };
@@ -67,12 +69,16 @@ const Header = () => {
     <div className="pt-8">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Photos</h2>
-        <button
-          className="border-none border-gray-400 py-2 px-4 w-52 rounded-md"
-          onClick={toggleForm}
-        >
-          Create new memory
-        </button>
+        {pathname === "/" ? (
+          <button
+            className="border-none border-gray-400 py-2 px-4 w-52 rounded-md"
+            onClick={toggleForm}
+          >
+            Create new memory
+          </button>
+        ) : (
+          ""
+        )}
       </div>
       {showForm && (
         <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
