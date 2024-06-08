@@ -6,9 +6,8 @@ import { RiDeleteBin6Fill } from "react-icons/ri";
 import "../../app/globals.css";
 import { RiEdit2Fill } from "react-icons/ri";
 import { MdCloudUpload } from "react-icons/md";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { useRef } from "react";
 import Link from "next/link";
 import { CircleLoader } from "react-spinners";
 
@@ -20,17 +19,19 @@ export default function Home() {
   const [showForm, setShowForm] = useState(false);
   const [editId, setEditId] = useState(null);
   const [imagePreview, setImagePreview] = useState(null);
+
   const fetchMemories = async () => {
     const res = await fetch("http://localhost:8080/getMemory");
     const data = await res.json();
     setMemory(data.data);
     setLoading(false);
   };
+
   const toggleForm = () => {
     setShowForm(!showForm);
   };
 
-  const imagebase64 = async (file: any) => {
+  const imagebase64 = async (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -39,28 +40,25 @@ export default function Home() {
     });
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     const id = editId;
     const fileInput = e.target.fileInput.files[0];
-    console.log(e.target.fileInput.files[0]);
 
     if (fileInput) {
       const image = await imagebase64(fileInput);
       setShowForm(false);
-      console.log(e.target.textInput.value);
-      console.log(image);
 
       const res = await fetch(`http://localhost:8080/editMemory/${id}`, {
         method: "PUT",
         headers: {
-          "content-type": "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ title: e.target.textInput.value, image: image }),
       });
+
       const data = await res.json();
-      console.log(data);
-      if (res) {
+      if (res.ok) {
         router.refresh();
         setShowForm(false);
       }
@@ -68,20 +66,20 @@ export default function Home() {
       const res = await fetch(`http://localhost:8080/editMemory/${id}`, {
         method: "PUT",
         headers: {
-          "content-type": "application/json",
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({ title: e.target.textInput.value }),
       });
+
       const data = await res.json();
-      console.log(data);
-      if (res) {
+      if (res.ok) {
         router.refresh();
         setShowForm(false);
       }
     }
   };
 
-  const openEditWindow = async (id: any) => {
+  const openEditWindow = async (id) => {
     setShowForm(!showForm);
     try {
       const res = await fetch(`http://localhost:8080/getMemory/${id}`);
@@ -91,7 +89,10 @@ export default function Home() {
 
       const memory = await res.json();
       setEditId(id);
-      textInputRef.current.value = memory.title;
+
+      if (textInputRef.current) {
+        textInputRef.current.value = memory.title;
+      }
       setImagePreview(memory.image);
       setShowForm(true);
     } catch (error) {
@@ -99,28 +100,7 @@ export default function Home() {
     }
   };
 
-  const editMemory = async (id: any, updatedData: any) => {
-    try {
-      const res = await fetch(`http://localhost:8080/editMemory/${id}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(updatedData),
-      });
-
-      if (!res.ok) {
-        throw new Error(`Failed to update memory! Status: ${res.status}`);
-      }
-
-      const result = await res.json();
-      console.log(result.message);
-    } catch (error) {
-      console.error("Error updating memory:", error);
-    }
-  };
-
-  const handleFileChange = (event: any) => {
+  const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
       const reader = new FileReader();
@@ -133,7 +113,7 @@ export default function Home() {
     }
   };
 
-  const deleteMemory = async (id: any) => {
+  const deleteMemory = async (id) => {
     try {
       const res = await fetch(`http://localhost:8080/deleteMemory/${id}`, {
         method: "DELETE",
@@ -149,9 +129,11 @@ export default function Home() {
       console.error("Error deleting memory:", error);
     }
   };
+
   useEffect(() => {
     fetchMemories();
-  });
+  }, []);
+
   return (
     <main className="container">
       <div className="sticky top-0 bg-transparent pb-4 z-10">
@@ -159,7 +141,7 @@ export default function Home() {
         <Header />
       </div>
       {loading ? (
-        <div className=" flex justify-center items-center h-[calc(100vh-100px)]">
+        <div className="flex justify-center items-center h-[calc(100vh-100px)]">
           <CircleLoader color="#36d7b7" size={150} />
         </div>
       ) : (
@@ -173,7 +155,7 @@ export default function Home() {
               <img
                 src={el.image}
                 alt="photo"
-                className="w-full h-full  rounded-lg object-fill "
+                className="w-full h-full rounded-lg object-fill"
               />
               <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
                 <h2 className="text-white text-xl font-bold shadow-lg">

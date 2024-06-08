@@ -19,6 +19,7 @@ const Memory = () => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [memoryImage, setMemoryImage] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [modalImage, setModalImage] = useState(null);
   const lastSegment = pathname.split("/").pop();
   console.log(pathname);
 
@@ -38,15 +39,17 @@ const Memory = () => {
     }
   };
 
-  const handleOpenModal = () => {
+  const handleOpenModal = (image) => {
+    setModalImage(image);
     setIsModalOpen(true);
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+    setModalImage(null);
   };
 
-  const imagebase64 = async (file: any) => {
+  const imagebase64 = async (file) => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -55,7 +58,7 @@ const Memory = () => {
     });
   };
 
-  const handleFileChange = (event: any) => {
+  const handleFileChange = (event) => {
     // Update the selected file state when the file input changes
     setSelectedFile(event.target.files[0]);
   };
@@ -73,7 +76,8 @@ const Memory = () => {
     // Clean up
     document.body.removeChild(link);
   };
-  const handleSubmit = async (e: any) => {
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(selectedFile);
     const fileInput = selectedFile;
@@ -95,7 +99,7 @@ const Memory = () => {
     }
   };
 
-  const deleteMemory = async (id: any) => {
+  const deleteMemory = async (id) => {
     try {
       const res = await fetch(`http://localhost:8080/deleteMemoryImage/${id}`, {
         method: "DELETE",
@@ -115,7 +119,8 @@ const Memory = () => {
 
   useEffect(() => {
     fetchMemoriesImages();
-  });
+  }, []);
+
   return (
     <main className="container">
       <div className="sticky top-0 bg-transparent pb-4 z-10">
@@ -139,71 +144,67 @@ const Memory = () => {
           </form>
         </div>
 
-        {memoryImage.map((el) => {
-          return (
-            <>
-              <div key={el._id} className="relative" onClick={handleOpenModal}>
-                <img
-                  src={el.image}
-                  alt="photo"
-                  className="w-full h-full object-cover rounded-lg"
-                />
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent triggering the modal open
-                    deleteMemory(el._id);
-                  }}
-                  className="absolute bottom-2 right-2 text-white p-2 rounded-full focus:outline-none bg-red-500 hover:bg-red-700"
-                >
-                  <RiDeleteBin6Fill size={20} />
-                </button>
-              </div>
+        {memoryImage.map((el) => (
+          <div
+            key={el._id}
+            className="relative"
+            onClick={() => handleOpenModal(el.image)}
+          >
+            <img
+              src={el.image}
+              alt="photo"
+              className="w-full h-full object-cover rounded-lg"
+            />
+            <button
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent triggering the modal open
+                deleteMemory(el._id);
+              }}
+              className="absolute bottom-2 right-2 text-white p-2 rounded-full focus:outline-none bg-red-500 hover:bg-red-700"
+            >
+              <RiDeleteBin6Fill size={20} />
+            </button>
+          </div>
+        ))}
 
-              {isModalOpen && (
-                <div
-                  className="modal fade show d-block"
-                  tabIndex="-1"
-                  role="dialog"
-                  aria-labelledby="exampleModalLabel"
-                  aria-hidden="true"
-                  style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
-                >
-                  <div
-                    className="modal-dialog modal-dialog-centered modal-lg"
-                    role="document"
+        {isModalOpen && modalImage && (
+          <div
+            className="modal fade show d-block"
+            tabIndex="-1"
+            role="dialog"
+            aria-labelledby="exampleModalLabel"
+            aria-hidden="true"
+            style={{ backgroundColor: "rgba(0, 0, 0, 0.5)" }}
+          >
+            <div
+              className="modal-dialog modal-dialog-centered modal-lg"
+              role="document"
+            >
+              <div className="modal-content">
+                <div className="modal-header d-flex justify-between">
+                  <button
+                    type="button"
+                    className="text-2xl px-4 py-2"
+                    onClick={() => downloadImage(modalImage)}
                   >
-                    <div className="modal-content">
-                      <div className="modal-header d-flex justify-between">
-                        <button
-                          type="button"
-                          className="text-2xl px-4 py-2"
-                          onClick={() => downloadImage(el.image)}
-                        >
-                          <FaDownload />
-                        </button>
-                        <button
-                          type="button"
-                          className="close text-2xl px-4 py-2"
-                          aria-label="Close"
-                          onClick={handleCloseModal}
-                        >
-                          <AiOutlineClose className="font-bold" />
-                        </button>
-                      </div>
-                      <div className="modal-body">
-                        <img
-                          src={el.image}
-                          alt="photo"
-                          className="w-100 h-auto"
-                        />
-                      </div>
-                    </div>
-                  </div>
+                    <FaDownload />
+                  </button>
+                  <button
+                    type="button"
+                    className="close text-2xl px-4 py-2"
+                    aria-label="Close"
+                    onClick={handleCloseModal}
+                  >
+                    <AiOutlineClose className="font-bold" />
+                  </button>
                 </div>
-              )}
-            </>
-          );
-        })}
+                <div className="modal-body">
+                  <img src={modalImage} alt="photo" className="w-100 h-auto" />
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </main>
   );

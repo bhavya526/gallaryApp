@@ -17,6 +17,7 @@
     "react-dom": "^18",
     "react-icons": "^5.2.1",
     "react-router-dom": "^6.23.1",
+    "react-spinners": "^0.13.8",
     "uploadthing": "^6.12.0"
   },
   "devDependencies": {
