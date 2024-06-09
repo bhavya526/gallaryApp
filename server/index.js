@@ -1,9 +1,10 @@
-require("dotenv").config();
+require("dotenv").config({ path: ".env" });
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
 
-const PORT = process.env.PORT || 8080;
+const PORT = process.env.PORT || 8080; // Use PORT from .env or default to 8080
+
 const app = express();
 app.use(express.json({ limit: "50mb" }));
 app.use(cors());
@@ -40,6 +41,7 @@ app.post("/uploadMemory", async (req, res) => {
   });
   await memoryData.save();
   console.log("Memory added successfully!");
+  res.status(201).json({ message: "Memory added successfully!" });
 });
 
 app.get("/loginMemory", async (req, res) => {
@@ -178,15 +180,17 @@ app.get("/getMemoryImage/:parentId", async (req, res) => {
 
 app.get("/", async (req, res) => {
   console.log("Running");
+  res.send("Server is running");
 });
 
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(
+    "mongodb+srv://bhavyasharmaa10:UDc4tdKYfKpJAFu8@cluster0.wei2vlz.mongodb.net/gallary_db"
+  )
   .then(() => {
     console.log("Connected to DB");
+    app.listen(PORT, () => console.log("Server is running at " + PORT));
   })
   .catch((err) => {
     console.log(err);
   });
-
-app.listen(PORT, () => console.log("Server is running at " + PORT));
