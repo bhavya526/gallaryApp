@@ -184,9 +184,7 @@ app.get("/", async (req, res) => {
 });
 
 mongoose
-  .connect(
-    "mongodb+srv://bhavyasharmaa10:UDc4tdKYfKpJAFu8@cluster0.wei2vlz.mongodb.net/gallary_db"
-  )
+  .connect(process.env.MONGODB)
   .then(() => {
     console.log("Connected to DB");
     app.listen(PORT, () => console.log("Server is running at " + PORT));
