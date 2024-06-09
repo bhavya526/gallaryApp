@@ -69,7 +69,7 @@ const Header = () => {
     <div className="pt-8">
       <div className="flex items-center justify-between">
         <h2 className="text-xl font-semibold">Photos</h2>
-        {pathname === "/" ? (
+        {pathname === "/MainPage" ? (
           <button
             className="border-none border-gray-400 py-2 px-4 w-52 rounded-md"
             onClick={toggleForm}

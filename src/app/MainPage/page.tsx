@@ -2,23 +2,28 @@
 import Image from "next/image";
 import Navbar from "@/components/Navbar";
 import Header from "@/components/Header";
-import { RiDeleteBin6Fill } from "react-icons/ri";
-import "../../app/globals.css";
-import { RiEdit2Fill } from "react-icons/ri";
+import { RiDeleteBin6Fill, RiEdit2Fill } from "react-icons/ri";
 import { MdCloudUpload } from "react-icons/md";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { CircleLoader } from "react-spinners";
+import "../../app/globals.css";
+
+interface Memory {
+  _id: string;
+  title: string;
+  image: string;
+}
 
 export default function Home() {
-  const textInputRef = useRef(null);
+  const textInputRef = useRef<HTMLInputElement>(null);
   const router = useRouter();
-  const [memory, setMemory] = useState([]);
+  const [memory, setMemory] = useState<Memory[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [editId, setEditId] = useState(null);
-  const [imagePreview, setImagePreview] = useState(null);
+  const [editId, setEditId] = useState<string | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const fetchMemories = async () => {
     const res = await fetch("http://localhost:8080/getMemory");
@@ -31,7 +36,9 @@ export default function Home() {
     setShowForm(!showForm);
   };
 
-  const imagebase64 = async (file: any) => {
+  const imagebase64 = async (
+    file: File
+  ): Promise<string | ArrayBuffer | null> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -40,46 +47,49 @@ export default function Home() {
     });
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const id = editId;
-    const fileInput = e.target.fileInput.files[0];
+    if (!editId) return;
+    const fileInput = (
+      e.currentTarget.elements.namedItem("fileInput") as HTMLInputElement
+    ).files?.[0];
+    const title = (
+      e.currentTarget.elements.namedItem("textInput") as HTMLInputElement
+    ).value;
 
     if (fileInput) {
       const image = await imagebase64(fileInput);
       setShowForm(false);
 
-      const res = await fetch(`http://localhost:8080/editMemory/${id}`, {
+      const res = await fetch(`http://localhost:8080/editMemory/${editId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title: e.target.textInput.value, image: image }),
+        body: JSON.stringify({ title, image }),
       });
 
-      const data = await res.json();
       if (res.ok) {
-        router.refresh();
+        window.location.reload(); // Use window.location.reload() to refresh the page
         setShowForm(false);
       }
     } else {
-      const res = await fetch(`http://localhost:8080/editMemory/${id}`, {
+      const res = await fetch(`http://localhost:8080/editMemory/${editId}`, {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({ title: e.target.textInput.value }),
+        body: JSON.stringify({ title }),
       });
 
-      const data = await res.json();
       if (res.ok) {
-        router.refresh();
+        window.location.reload(); // Use window.location.reload() to refresh the page
         setShowForm(false);
       }
     }
   };
 
-  const openEditWindow = async (id: any) => {
+  const openEditWindow = async (id: string) => {
     setShowForm(!showForm);
     try {
       const res = await fetch(`http://localhost:8080/getMemory/${id}`);
@@ -90,7 +100,7 @@ export default function Home() {
       const memory = await res.json();
       setEditId(id);
 
-      if (textInputRef && textInputRef.current) {
+      if (textInputRef.current) {
         textInputRef.current.value = memory.title;
       }
       setImagePreview(memory.image);
@@ -100,12 +110,13 @@ export default function Home() {
     }
   };
 
-  const handleFileChange = (event: any) => {
-    const file = event.target.files[0];
-    if (file) {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+      const file = files[0];
       const reader = new FileReader();
       reader.onloadend = () => {
-        setImagePreview(reader.result);
+        setImagePreview(reader.result as string);
       };
       reader.readAsDataURL(file);
     } else {
@@ -113,7 +124,7 @@ export default function Home() {
     }
   };
 
-  const deleteMemory = async (id) => {
+  const deleteMemory = async (id: string) => {
     try {
       const res = await fetch(`http://localhost:8080/deleteMemory/${id}`, {
         method: "DELETE",
@@ -125,6 +136,7 @@ export default function Home() {
 
       const result = await res.json();
       console.log(result.message);
+      window.location.reload(); // Use window.location.reload() to refresh the page
     } catch (error) {
       console.error("Error deleting memory:", error);
     }

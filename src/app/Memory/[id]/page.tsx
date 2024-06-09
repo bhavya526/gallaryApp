@@ -12,14 +12,20 @@ import { CircleLoader } from "react-spinners";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min";
 
+// Define the types for the memory image object
+interface MemoryImage {
+  _id: string;
+  image: string;
+}
+
 const Memory = () => {
   const router = useRouter();
   const pathname = usePathname();
   const [loading, setLoading] = useState(true);
-  const [selectedFile, setSelectedFile] = useState(null);
-  const [memoryImage, setMemoryImage] = useState([]);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [memoryImage, setMemoryImage] = useState<MemoryImage[]>([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalImage, setModalImage] = useState(null);
+  const [modalImage, setModalImage] = useState<string | null>(null);
   const lastSegment = pathname.split("/").pop();
   console.log(pathname);
 
@@ -39,7 +45,7 @@ const Memory = () => {
     }
   };
 
-  const handleOpenModal = (image: any) => {
+  const handleOpenModal = (image: string) => {
     setModalImage(image);
     setIsModalOpen(true);
   };
@@ -49,7 +55,9 @@ const Memory = () => {
     setModalImage(null);
   };
 
-  const imagebase64 = async (file: any) => {
+  const imagebase64 = async (
+    file: File
+  ): Promise<string | ArrayBuffer | null> => {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.readAsDataURL(file);
@@ -58,12 +66,14 @@ const Memory = () => {
     });
   };
 
-  const handleFileChange = (event: any) => {
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     // Update the selected file state when the file input changes
-    setSelectedFile(event.target.files[0]);
+    if (event.target.files && event.target.files[0]) {
+      setSelectedFile(event.target.files[0]);
+    }
   };
 
-  const downloadImage = (imageUrl: any) => {
+  const downloadImage = (imageUrl: string) => {
     // Create a temporary anchor element
     const link = document.createElement("a");
     link.href = imageUrl;
@@ -77,11 +87,10 @@ const Memory = () => {
     document.body.removeChild(link);
   };
 
-  const handleSubmit = async (e: any) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log(selectedFile);
-    const fileInput = selectedFile;
-    const image = await imagebase64(fileInput);
+    if (!selectedFile) return;
+    const image = await imagebase64(selectedFile);
     console.log(image);
 
     const res = await fetch("http://localhost:8080/uploadImagesToMemory", {
@@ -89,17 +98,18 @@ const Memory = () => {
       headers: {
         "content-type": "application/json",
       },
-      body: JSON.stringify({ image: image, parentId: lastSegment }),
+      body: JSON.stringify({ image, parentId: lastSegment }),
     });
 
     const data = await res.json();
     console.log(data);
-    if (res) {
-      router.refresh();
+    window.location.reload();
+    if (res.ok) {
+      window.location.reload();
     }
   };
 
-  const deleteMemory = async (id: any) => {
+  const deleteMemory = async (id: string) => {
     try {
       const res = await fetch(`http://localhost:8080/deleteMemoryImage/${id}`, {
         method: "DELETE",
@@ -111,7 +121,7 @@ const Memory = () => {
 
       const result = await res.json();
       console.log(result.message);
-      router.refresh();
+      window.location.reload();
     } catch (error) {
       console.error("Error deleting memory:", error);
     }
@@ -140,7 +150,9 @@ const Memory = () => {
                 <MdCloudUpload />
               </div>
             </label>
-            <button disabled={!selectedFile}>Upload</button>
+            <button disabled={!selectedFile} className="upload-button">
+              Upload
+            </button>
           </form>
         </div>
 
@@ -170,7 +182,7 @@ const Memory = () => {
         {isModalOpen && modalImage && (
           <div
             className="modal fade show d-block"
-            tabIndex="-1"
+            tabIndex={-1}
             role="dialog"
             aria-labelledby="exampleModalLabel"
             aria-hidden="true"
