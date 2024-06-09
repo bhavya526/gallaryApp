@@ -66,8 +66,8 @@ const Header = () => {
   };
 
   return (
-    <div className="pt-8">
-      <div className="flex items-center justify-between">
+    <div className="pt-8 ">
+      <div className="flex items-center justify-between ">
         <h2 className="text-xl font-semibold">Photos</h2>
         {pathname === "/MainPage" ? (
           <button

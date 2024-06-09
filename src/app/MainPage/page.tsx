@@ -147,122 +147,126 @@ export default function Home() {
   }, []);
 
   return (
-    <main className="container">
-      <div className="sticky top-0 bg-transparent pb-4 z-10">
-        <Navbar />
-        <Header />
-      </div>
-      {loading ? (
-        <div className="flex justify-center items-center h-[calc(100vh-100px)]">
-          <CircleLoader color="#36d7b7" size={150} />
+    <main>
+      <div className="sticky top-0 bg-transparent pb-4 z-10 header">
+        <div className="container">
+          <Navbar />
+          <Header />
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 pb-12">
-          {memory.map((el) => (
-            <Link
-              key={el._id}
-              href={`/Memory/${el._id}`}
-              className="relative max-h-[400px] block"
-            >
-              <img
-                src={el.image}
-                alt="photo"
-                className="w-full h-full rounded-lg object-fill"
-              />
-              <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
-                <h2 className="text-white text-xl font-bold shadow-lg">
-                  {el.title}
-                </h2>
-              </div>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  deleteMemory(el._id);
-                }}
-                className="absolute bottom-2 right-2 text-white p-2 rounded-full focus:outline-none bg-red-500 hover:bg-red-700"
+      </div>
+      <div className="container">
+        {loading ? (
+          <div className="flex justify-center items-center h-[calc(100vh-100px)]">
+            <CircleLoader color="#36d7b7" size={150} />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 pb-12">
+            {memory.map((el) => (
+              <Link
+                key={el._id}
+                href={`/Memory/${el._id}`}
+                className="relative max-h-[400px] block"
               >
-                <RiDeleteBin6Fill size={20} />
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  openEditWindow(el._id);
-                }}
-                className="absolute bottom-2 left-2 text-white p-2 rounded-full focus:outline-none bg-blue-500 hover:bg-blue-700"
-              >
-                <RiEdit2Fill size={20} />
-              </button>
-            </Link>
-          ))}
+                <img
+                  src={el.image}
+                  alt="photo"
+                  className="w-full h-full rounded-lg object-fill"
+                />
+                <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50">
+                  <h2 className="text-white text-xl font-bold shadow-lg">
+                    {el.title}
+                  </h2>
+                </div>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    deleteMemory(el._id);
+                  }}
+                  className="absolute bottom-2 right-2 text-white p-2 rounded-full focus:outline-none bg-red-500 hover:bg-red-700"
+                >
+                  <RiDeleteBin6Fill size={20} />
+                </button>
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    openEditWindow(el._id);
+                  }}
+                  className="absolute bottom-2 left-2 text-white p-2 rounded-full focus:outline-none bg-blue-500 hover:bg-blue-700"
+                >
+                  <RiEdit2Fill size={20} />
+                </button>
+              </Link>
+            ))}
 
-          {showForm && (
-            <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
-              <form
-                className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm"
-                onSubmit={handleSubmit}
-              >
-                <div className="mb-4">
-                  <label
-                    htmlFor="textInput"
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    Text Input
-                  </label>
-                  <input
-                    type="text"
-                    ref={textInputRef}
-                    id="textInput"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    placeholder="Enter text"
-                  />
-                </div>
-                <div className="mb-4">
-                  <label
-                    htmlFor="fileInput"
-                    className="block text-gray-700 text-sm font-bold mb-2"
-                  >
-                    File Input
-                  </label>
-                  <input
-                    type="file"
-                    id="fileInput"
-                    name="fileInput"
-                    className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                  />
-                </div>
-                {imagePreview && (
+            {showForm && (
+              <div className="fixed inset-0 flex items-center justify-center bg-gray-900 bg-opacity-50 z-50">
+                <form
+                  className="bg-white p-6 rounded-lg shadow-lg w-full max-w-sm"
+                  onSubmit={handleSubmit}
+                >
                   <div className="mb-4">
-                    <img
-                      src={imagePreview}
-                      alt="Preview"
-                      className="w-full h-auto rounded-lg shadow-md"
+                    <label
+                      htmlFor="textInput"
+                      className="block text-gray-700 text-sm font-bold mb-2"
+                    >
+                      Text Input
+                    </label>
+                    <input
+                      type="text"
+                      ref={textInputRef}
+                      id="textInput"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      placeholder="Enter text"
                     />
                   </div>
-                )}
-                <div className="flex items-center justify-between">
-                  <button
-                    type="submit"
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                  >
-                    Submit
-                  </button>
-                  <button
-                    type="button"
-                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
-                    onClick={toggleForm}
-                  >
-                    Cancel
-                  </button>
-                </div>
-              </form>
-            </div>
-          )}
-        </div>
-      )}
+                  <div className="mb-4">
+                    <label
+                      htmlFor="fileInput"
+                      className="block text-gray-700 text-sm font-bold mb-2"
+                    >
+                      File Input
+                    </label>
+                    <input
+                      type="file"
+                      id="fileInput"
+                      name="fileInput"
+                      className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                      accept="image/*"
+                      onChange={handleFileChange}
+                    />
+                  </div>
+                  {imagePreview && (
+                    <div className="mb-4">
+                      <img
+                        src={imagePreview}
+                        alt="Preview"
+                        className="w-full h-auto rounded-lg shadow-md"
+                      />
+                    </div>
+                  )}
+                  <div className="flex items-center justify-between">
+                    <button
+                      type="submit"
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                    >
+                      Submit
+                    </button>
+                    <button
+                      type="button"
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+                      onClick={toggleForm}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                </form>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </main>
   );
 }

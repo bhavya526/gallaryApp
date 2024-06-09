@@ -132,12 +132,14 @@ const Memory = () => {
   }, []);
 
   return (
-    <main className="container">
-      <div className="sticky top-0 bg-transparent pb-4 z-10">
-        <Navbar />
-        <Header />
+    <main>
+      <div className="sticky top-0 bg-transparent pb-4 z-10 header">
+        <div className="container">
+          <Navbar />
+          <Header />
+        </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 pb-12">
+      <div className="container grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-4 pb-12">
         <div className="imageContainer">
           <form onSubmit={handleSubmit}>
             <label htmlFor="uploadImage">
