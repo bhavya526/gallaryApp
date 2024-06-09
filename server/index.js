@@ -1,3 +1,4 @@
+require("dotenv").config();
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
@@ -180,9 +181,7 @@ app.get("/", async (req, res) => {
 });
 
 mongoose
-  .connect(
-    "mongodb+srv://bhavyasharmaa10:UDc4tdKYfKpJAFu8@cluster0.wei2vlz.mongodb.net/gallary_db"
-  )
+  .connect(process.env.MONGODB_URI)
   .then(() => {
     console.log("Connected to DB");
   })
