@@ -57,8 +57,9 @@ const Header = () => {
       });
       const data = await res.json();
       console.log(data);
+      window.location.reload();
       if (res) {
-        router.refresh();
+        window.location.reload();
 
         res.send({ message: "Memory added successfully!" });
       }
