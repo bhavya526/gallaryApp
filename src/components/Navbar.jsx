@@ -46,7 +46,7 @@ const Navbar = () => {
         <div className="size-[40px] rounded-full border border-gray-400 text-2xl grid place-items-center text-gray-600">
           <AiOutlineUser />
         </div>
-        <p>{user}</p>
+        <p className="mb-0">{user}</p>
         <div className="relative inline-block text-left" ref={dropdownRef}>
           <button
             onClick={handleDropdownToggle}
