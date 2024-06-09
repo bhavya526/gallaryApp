@@ -87,6 +87,7 @@ export default function Home() {
         setShowForm(false);
       }
     }
+    window.location.reload();
   };
 
   const openEditWindow = async (id: string) => {
